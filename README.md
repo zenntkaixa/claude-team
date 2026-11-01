@@ -21,6 +21,10 @@ Generic sub-agents and skills for Claude Code that work on any repository. They 
 
 All agents are read-only. They never commit, push or merge.
 
+## Guides
+
+- [`PROMPT-PLAYBOOK.md`](PROMPT-PLAYBOOK.md): the prompts and workflow for taking a new project from an empty folder to a deployed app, distilled from radiozk. Read-only reference; `install.sh` does not link it.
+
 ## Install on a machine
 
 ```
