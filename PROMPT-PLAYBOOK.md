@@ -1,6 +1,6 @@
 # Prompt playbook: from empty folder to a deployed web app with Claude Code
 
-Distilled from the radiozk project (2026-10-24 to 2026-11-01, about 200 prompts). Replace `[brackets]`.
+Distilled from the radiozk project (2026-10-24 to 2026-11-01, about 200 prompts; refreshed on 2026-11-15 with the launch-and-polish phase). Replace `[brackets]`.
 Most prompts are one line. The detail lives in `CLAUDE.md`, not in your prompts, so write it early (phase 3).
 
 ## The loop that does most of the work
@@ -14,6 +14,8 @@ Every feature, fix or upgrade followed the same five steps. Five short prompts, 
 | 3. Ship | `Commit in stages and open a PR.` (or `Push it and open a PR`) |
 | 4. After you merge | `PR merged, check the CI.` then `Check the develop run again` if still running |
 | 5. Next | `What's next?` |
+
+Variants that paid off: `Check for feasibility.` and `Make no bias.` (when you paste an idea list and want an honest verdict, not a yes), `Consolidate with our previous todos.` (one merged list after a long thread), `List the loose ends to tie.`, `Yes, delete the merged branches.`
 
 Release: `Yes, open the release PR` then `Release PR merged, check the CI` then `Yes, delete the merged branches`.
 
@@ -102,12 +104,26 @@ You merge PRs yourself. Claude pushes only when you say so.
 
 ---
 
+## Phase 13: After launch (live site, small features, visitors)
+Done on radiozk after the first deploy, one small PR at a time, each checked by a throwaway-stack e2e before the PR.
+- Review the live site: `We've deployed a new release. Go through it and tell me what you think. Any improvements or features for visitors, my personal branding, and potential small income?` Expect a screenshot-based review plus ranked ideas; ask it to flag constraints (a third party's stream is not yours to monetise).
+- Paste your own idea list and ask `Check for feasibility and tell me what you think. Make no bias.` You get cost, risk and a verdict per idea, including "don't".
+- Small, quiet features that worked: sleep timer, liked songs kept only in the browser, share button, installable app (a manifest and icons were enough on Android Chrome, no service worker), a "What's new" page, `robots.txt` and a sitemap that are real files (a single-page app otherwise answers them with its HTML).
+- Feedback without a backend: a link to GitHub Issues with two issue forms (feedback, problem), plus one quiet line after a few likes, shown once. A form of your own comes only if that gets used.
+- Park decisions you have not made (`let's turn off the tipping feature, I'm not sure which channel supporters like`) and have them saved to memory so they are not proposed again.
+- Back up what you cannot rebuild: a snapshot in the database console plus a script you run with your own connection string (the agent never sees it).
+- Test on a real device and report the steps and what you saw (`open in Chrome, three dots, Install: no address bar, ZK icon, splash screen`). That settled a question no desk test could.
+- Housekeeping prompts: `Do housekeeping.` (e2e on demand in CI, reviewer and `ship-pr` tweaks, refresh this playbook).
+
 ## Habits worth repeating
 - **Ask before building:** `Correct me if I'm wrong before you proceed.` caught that a workflow already existed.
 - **One concern per PR**, with `Commit in stages`.
 - **Say "check the CI" after every merge.** It caught the port clash in the tests only after merge to the PR.
 - **Name what is production** and what must never be deleted.
 - **Approve each push, merge and delete** in words. Claude does not carry approval over.
+- **Ask what was not tested.** Real phones, other browsers, audio, a third party's service and a deploy are the usual gaps; have them named in every PR body.
+- **Check open PRs before opening one.** A release PR may already exist from you or another session.
+- **Keep private details out of a public repo** (email, bank QR codes) and decide that yourself.
 
 ## What I'd do differently next time
 1. Decide the deploy platform before building a second one.
@@ -115,3 +131,6 @@ You merge PRs yourself. Claude pushes only when you say so.
 3. Reserve test ports in `CLAUDE.md` at the start (the shared-port clash cost a CI round).
 4. Ask for the rate-limit and forwarded-header check as part of the first deploy, run from two networks within the same minute.
 5. Put `Don't propose [topic]` decisions in memory when you make them (e.g. no restyling).
+6. Run the browser test whenever visible text or page structure changes, even if CI does not run it: stale selectors broke it several times (a count of links, a second element with the same role, a title that differs from the one shown). A manual CI workflow for it is cheap, and it should stay manual when it plays someone else's stream.
+7. Test the install on a real phone before adding a service worker; here the manifest alone was enough.
+8. Raise the bundle budget deliberately in the PR that needs it, instead of discovering the headroom is gone.
