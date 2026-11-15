@@ -11,15 +11,16 @@ Read the project's `CLAUDE.md` first (the *Agent contract* section if present) f
 ## Steps
 
 1. **Look before acting.** `git status -sb`, `git branch --show-current`, `git diff --stat`. Know which changes are yours and which files are untracked on purpose.
-2. **Sync.** `git fetch --all --prune`, then fast-forward the integration branch (`git pull --ff-only`). Stop and report if it cannot fast-forward. Do not rebase or reset anyone's work.
+2. **Sync.** `git fetch --all --prune`, then fast-forward the integration branch (`git pull --ff-only`). Stop and report if it cannot fast-forward. Do not rebase or reset anyone's work. A fetch or push can fail transiently (for example `ssh: connect to host github.com port 22: Connection refused`): retry a few times with a short pause before giving up. Run the whole sequence with `set -e` (not a `&&` chain that quietly skips the commit but still pushes an empty branch, which makes `gh pr create` fail with "No commits between").
 3. **Branch.** Create `<type>/<short-name>` from the integration branch (types: feat, fix, docs, test, chore, refactor). Never commit to the integration or production branch directly. If the work already sits on a feature branch, keep it.
-4. **Verify before committing.** Run the checks the contract names for the touched area (at least the typecheck and the unit tests; the e2e only when the contract says it is needed). Report the real result. If a check fails, stop: do not commit a known failure unless the user says so.
+4. **Verify before committing.** Run the checks the contract names for the touched area (at least the typecheck and the unit tests; the e2e when the contract says it is needed, and also whenever the diff changes visible text, roles or page structure that an e2e script selects on: those scripts are often not in CI, so a stale selector shows up only when someone runs them). Report the real result. If a check fails, stop: do not commit a known failure unless the user says so.
 5. **Stage by name.** `git add <file>...`. Never `git add -A` or `git add .`. Run `git diff --cached --stat` and check that no secrets, generated output or the project's protected untracked files are included.
 6. **Commit.** Imperative subject under about 70 characters, a body that says why, and the trailer the session's attribution reminder gives (use a heredoc so formatting survives). One concern per commit.
 7. **Stop and ask before pushing** unless the user already said to push in this request. Approval to commit is not approval to push, and an earlier push does not cover this one. Say what will be pushed and where.
-8. **Push and open the PR** after the go-ahead: `git push -u origin <branch>`, then `gh pr create --base <integration branch>` with a body of:
+8. **Check for a duplicate first:** `gh pr list --head <branch> --state open`. A PR for the same branch (a release PR especially) may already exist, opened by the user or another session; say so and offer to update it instead of opening a second one. **Then push and open the PR** after the go-ahead: `git push -u origin <branch>`, then `gh pr create --base <integration branch>` with a body of:
    - **What** changed and **why**, in a few lines;
    - **Not included** (things deliberately left out);
+   - **Not tested** (what was not run or cannot be run here: real devices, third-party services, audio, a deploy; say it plainly instead of leaving it out);
    - **Test plan** with the commands actually run and their results;
    - **Deploy impact** (none, or what must be rebuilt, restarted or migrated);
    - the PR trailer the attribution reminder gives, last.
