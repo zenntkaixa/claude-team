@@ -18,6 +18,7 @@ Generic sub-agents and skills for Claude Code that work on any repository. They 
 | `bootstrap-agent-contract` | create or refresh a project's Agent contract (`scripts/detect.sh` gathers facts) |
 | `ship-pr` | the commit, push and PR workflow; manual-only, pushes only on the user's go-ahead |
 | `flaky-triage` | attribute an intermittent failure by repeated runs and a control (`scripts/repeat.sh`) |
+| `post-merge` | after "PR merged": wait for CI on the new head commit (a cancelled run on an older commit is not a failure), verify the deploy read-only after a release, offer branch cleanup |
 
 All agents are read-only. They never commit, push or merge.
 
